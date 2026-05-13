@@ -8,12 +8,8 @@ import br.unicamp.padroescriacionais.legacy.generator.RelatorioGeneratorFactory;
 
 public class ExportacaoService {
 
-    private ConfiguracaoSistema configuracao = new ConfiguracaoSistema(
-            "Empresa XPTO Ltda.",
-            "PROD",
-            "/var/exports/relatorios",
-            false
-    );
+    // AGORA: Usando a instância única (Singleton) em vez de criar uma nova
+    private ConfiguracaoSistema configuracao = ConfiguracaoSistema.getInstance();
 
     public void exportar(Relatorio relatorio, FormatoRelatorio formato) {
         RelatorioGenerator generator = RelatorioGeneratorFactory.criar(formato);

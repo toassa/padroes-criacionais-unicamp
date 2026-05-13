@@ -9,69 +9,57 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConfiguracaoSistemaTest {
 
     @Test
-    void deveCriarConfiguracaoComValoresInformados() {
-        ConfiguracaoSistema config = new ConfiguracaoSistema(
-                "Empresa Teste",
-                "DEV",
-                "/tmp/test",
-                true
-        );
+    void deveRetornarSempreAMesmaInstancia() {
+        // Agora usamos o getInstance() em vez de 'new'
+        ConfiguracaoSistema config1 = ConfiguracaoSistema.getInstance();
+        ConfiguracaoSistema config2 = ConfiguracaoSistema.getInstance();
 
-        assertEquals("Empresa Teste", config.getNomeEmpresa());
-        assertEquals("DEV", config.getAmbiente());
-        assertEquals("/tmp/test", config.getDiretorioExportacao());
-        assertTrue(config.isDebugAtivo());
+        // Verifica se ambas as variáveis apontam para o MESMO objeto na memória
+        assertSame(config1, config2, "O Singleton deve garantir que a instância seja única.");
     }
 
     @Test
-    void devePermitirAlteracaoDeAmbiente() {
-        ConfiguracaoSistema config = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
+    void devePermitirAlteracaoDeAmbienteCentralizada() {
+        ConfiguracaoSistema config = ConfiguracaoSistema.getInstance();
         config.setAmbiente("PROD");
 
         assertEquals("PROD", config.getAmbiente());
     }
 
     @Test
-    void devePermitirAlteracaoDeDebug() {
-        ConfiguracaoSistema config = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
+    void devePermitirAlteracaoDeDebugCentralizada() {
+        ConfiguracaoSistema config = ConfiguracaoSistema.getInstance();
         config.setDebugAtivo(true);
 
         assertTrue(config.isDebugAtivo());
     }
 
     @Test
-    void devePermitirAlteracaoDeDiretorio() {
-        ConfiguracaoSistema config = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
+    void devePermitirAlteracaoDeDiretorioCentralizada() {
+        ConfiguracaoSistema config = ConfiguracaoSistema.getInstance();
         config.setDiretorioExportacao("/novo/diretorio");
 
         assertEquals("/novo/diretorio", config.getDiretorioExportacao());
     }
 
     @Test
-    void duasInstanciasIndependentesPodemTerAmbientesDiferentes() {
-        ConfiguracaoSistema configDev = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", true);
-        ConfiguracaoSistema configProd = new ConfiguracaoSistema("Empresa", "PROD", "/exports", false);
+    void alteracaoEmUmaReferenciaDeveAfetarTodasAsOutras() {
+        // Este teste substitui o antigo que testava instâncias independentes
+        ConfiguracaoSistema ref1 = ConfiguracaoSistema.getInstance();
+        ConfiguracaoSistema ref2 = ConfiguracaoSistema.getInstance();
 
-        assertNotEquals(configDev.getAmbiente(), configProd.getAmbiente());
-        assertNotEquals(configDev.getDiretorioExportacao(), configProd.getDiretorioExportacao());
-        assertNotEquals(configDev.isDebugAtivo(), configProd.isDebugAtivo());
+        ref1.setAmbiente("STAGING");
+
+        // Como é Singleton, se mudei na ref1, a ref2 TEM que refletir a mudança
+        assertEquals("STAGING", ref2.getAmbiente(), "A alteração deve ser visível em todas as referências.");
     }
 
     @Test
-    void alteracaoEmUmaInstanciaNaoAfetaOutra() {
-        ConfiguracaoSistema config1 = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
-        ConfiguracaoSistema config2 = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
-
-        config1.setAmbiente("PROD");
-
-        assertEquals("PROD", config1.getAmbiente());
-        assertEquals("DEV", config2.getAmbiente());
-    }
-
-    @Test
-    void configuracaoServiceDeveRetornarConfiguracaoNaoNula() {
+    void configuracaoServiceDeveUsarInstanciaSingleton() {
         ConfiguracaoService service = new ConfiguracaoService();
-        assertNotNull(service.getConfiguracao());
-        assertFalse(service.getConfiguracao().getNomeEmpresa().isBlank());
+        ConfiguracaoSistema configGlobal = ConfiguracaoSistema.getInstance();
+        
+        // Verifica se o Service está usando a mesma instância global
+        assertSame(configGlobal, service.getConfiguracao(), "O Service deve usar o Singleton global.");
     }
 }
