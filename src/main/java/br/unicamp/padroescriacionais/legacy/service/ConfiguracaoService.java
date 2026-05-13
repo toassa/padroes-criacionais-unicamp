@@ -4,12 +4,16 @@ import br.unicamp.padroescriacionais.legacy.domain.ConfiguracaoSistema;
 
 public class ConfiguracaoService {
 
-    private ConfiguracaoSistema configuracao = new ConfiguracaoSistema(
-            "Empresa XPTO Ltda.",
-            "DEV",
-            "/tmp/relatorios",
-            true
-    );
+    // AGORA: Em vez de 'new', usamos o ponto de acesso global Singleton
+    private ConfiguracaoSistema configuracao = ConfiguracaoSistema.getInstance();
+
+    public ConfiguracaoService() {
+        // Configuramos os dados originais na instância única
+        configuracao.setNomeEmpresa("Empresa XPTO Ltda.");
+        configuracao.setAmbiente("DEV");
+        configuracao.setDiretorioExportacao("/tmp/relatorios");
+        configuracao.setDebugAtivo(true);
+    }
 
     public ConfiguracaoSistema getConfiguracao() {
         return configuracao;

@@ -12,12 +12,8 @@ import java.time.LocalDateTime;
 
 public class RelatorioService {
 
-    private ConfiguracaoSistema configuracao = new ConfiguracaoSistema(
-            "Empresa XPTO",
-            "DEV",
-            "/tmp/relatorios",
-            false
-    );
+    // AGORA: Acessando a instância única via Singleton
+    private ConfiguracaoSistema configuracao = ConfiguracaoSistema.getInstance();
 
     public Relatorio criarRelatorio(TipoRelatorio tipo) {
         String titulo;
@@ -46,10 +42,13 @@ public class RelatorioService {
     public String gerarRelatorio(TipoRelatorio tipo, FormatoRelatorio formato) {
         Relatorio relatorio = criarRelatorio(tipo);
 
+        // O Singleton garante que se o debug for ativado em qualquer lugar, 
+        // este serviço também verá a mudança.
         if (configuracao.isDebugAtivo()) {
             System.out.println("[DEBUG-RelatorioService] Gerando: " + tipo + " -> " + formato);
         }
 
+        // Observação: Este bloco de "if/else" será o foco da Pessoa 1 (Factory Method)
         if (formato == FormatoRelatorio.PDF) {
             PdfRelatorioGenerator generator = new PdfRelatorioGenerator();
             return generator.gerar(relatorio);

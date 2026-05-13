@@ -9,16 +9,13 @@ import br.unicamp.padroescriacionais.legacy.generator.PdfRelatorioGenerator;
 
 public class ExportacaoService {
 
-    private ConfiguracaoSistema configuracao = new ConfiguracaoSistema(
-            "Empresa XPTO Ltda.",
-            "PROD",
-            "/var/exports/relatorios",
-            false
-    );
+    // AGORA: Usando a instância única (Singleton) em vez de criar uma nova
+    private ConfiguracaoSistema configuracao = ConfiguracaoSistema.getInstance();
 
     public void exportar(Relatorio relatorio, FormatoRelatorio formato) {
         String conteudoFormatado;
 
+        // Esta parte será refatorada pela Pessoa 1 (Factory Method)
         switch (formato) {
             case PDF:
                 PdfRelatorioGenerator pdfGenerator = new PdfRelatorioGenerator();
